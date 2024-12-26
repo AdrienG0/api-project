@@ -34,3 +34,15 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server draait op http://localhost:${PORT}`);
 });
+
+app.get('/users', (req, res) => {
+    const query = 'SELECT * FROM users';
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Er is een fout opgetreden');
+      } else {
+        res.json(results);
+      }
+    });
+  });
