@@ -60,6 +60,23 @@ app.post('/users', (req, res) => {
   });
 });
 
+
+app.get('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  const query = 'SELECT * FROM users WHERE id = ?';
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else if (results.length === 0) {
+      res.status(404).send('Gebruiker niet gevonden');
+    } else {
+      res.json(results[0]);
+    }
+  });
+});
+
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server draait op http://localhost:${PORT}`);
