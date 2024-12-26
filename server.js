@@ -118,8 +118,21 @@ app.delete('/users/:id', (req, res) => {
 //Lijst ophalen van nieuwsberichten
 
 app.get('/newsposts', (req, res) => {
-  const query = 'SELECT * FROM newsposts';
-  db.query(query, (err, results) => {
+  const { title, author } = req.query;
+  let query = 'SELECT * FROM newsposts';
+  const params = [];
+
+  if (title) {
+    query += ' WHERE title LIKE ?';
+    params.push(`%${title}%`);
+  }
+
+  if (author) {
+    query += title ? ' AND author LIKE ?' : ' WHERE author LIKE ?';
+    params.push(`%${author}%`);
+  }
+
+  db.query(query, params, (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).send('Er is een fout opgetreden');
@@ -128,6 +141,7 @@ app.get('/newsposts', (req, res) => {
     }
   });
 });
+
 
 //Haal een nieuwsbericht op basis van id
 
