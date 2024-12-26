@@ -60,6 +60,7 @@ app.post('/users', (req, res) => {
   });
 });
 
+//gebruiker op basis van id
 
 app.get('/users/:id', (req, res) => {
   const userId = req.params.id;
@@ -72,6 +73,43 @@ app.get('/users/:id', (req, res) => {
       res.status(404).send('Gebruiker niet gevonden');
     } else {
       res.json(results[0]);
+    }
+  });
+});
+
+app.put('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).send('Alle velden zijn verplicht');
+  }
+
+  const query = 'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?';
+  db.query(query, [name, email, password, userId], (err, result) => {
+    if (err) {
+      console.error('Database fout:', err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else if (result.affectedRows === 0) {
+      res.status(404).send('Gebruiker niet gevonden');
+    } else {
+      res.send('Gebruiker succesvol bijgewerkt');
+    }
+  });
+});
+
+
+app.delete('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  const query = 'DELETE FROM users WHERE id = ?';
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      console.error('Database fout:', err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else if (result.affectedRows === 0) {
+      res.status(404).send('Gebruiker niet gevonden');
+    } else {
+      res.send('Gebruiker succesvol verwijderd');
     }
   });
 });
