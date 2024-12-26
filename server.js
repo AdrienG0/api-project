@@ -118,7 +118,7 @@ app.delete('/users/:id', (req, res) => {
 //Lijst ophalen van nieuwsberichten
 
 app.get('/newsposts', (req, res) => {
-  const { title, author } = req.query;
+  const { title, author, limit, offset } = req.query;
   let query = 'SELECT * FROM newsposts';
   const params = [];
 
@@ -132,6 +132,10 @@ app.get('/newsposts', (req, res) => {
     params.push(`%${author}%`);
   }
 
+  query += ' LIMIT ? OFFSET ?';
+  params.push(parseInt(limit) || 10); // Standaard: 10 resultaten
+  params.push(parseInt(offset) || 0); // Standaard: begin vanaf 0
+
   db.query(query, params, (err, results) => {
     if (err) {
       console.error(err);
@@ -141,6 +145,7 @@ app.get('/newsposts', (req, res) => {
     }
   });
 });
+
 
 
 //Haal een nieuwsbericht op basis van id
