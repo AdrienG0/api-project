@@ -46,3 +46,24 @@ app.get('/users', (req, res) => {
       }
     });
   });
+
+
+// Voeg een nieuwe gebruiker toe
+app.post('/users', (req, res) => {
+    const { name, email, password } = req.body;
+  
+    if (!name || !email || !password) {
+      return res.status(400).send('Alle velden zijn verplicht');
+    }
+  
+    const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+    db.query(query, [name, email, password], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Er is een fout opgetreden');
+      } else {
+        res.status(201).send('Gebruiker succesvol toegevoegd');
+      }
+    });
+  });
+  
