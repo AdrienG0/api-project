@@ -1,6 +1,6 @@
-const express = require('express');
-const mysql = require('mysql2');
-const dotenv = require('dotenv');
+import express from 'express';
+import mysql from 'mysql2';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
@@ -30,40 +30,37 @@ app.get('/', (req, res) => {
   res.send('Welkom bij je API!');
 });
 
+app.get('/users', (req, res) => {
+  const query = 'SELECT * FROM users';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.post('/users', (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).send('Alle velden zijn verplicht');
+  }
+
+  const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+  db.query(query, [name, email, password], (err, result) => {
+    if (err) {
+      console.error('Database fout:', err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else {
+      res.status(201).send('Gebruiker succesvol toegevoegd');
+    }
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server draait op http://localhost:${PORT}`);
 });
-
-app.get('/users', (req, res) => {
-    const query = 'SELECT * FROM users';
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Er is een fout opgetreden');
-      } else {
-        res.json(results);
-      }
-    });
-  });
-
-
-// Voeg een nieuwe gebruiker toe
-app.post('/users', (req, res) => {
-    const { name, email, password } = req.body;
-  
-    if (!name || !email || !password) {
-      return res.status(400).send('Alle velden zijn verplicht');
-    }
-  
-    const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
-    db.query(query, [name, email, password], (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Er is een fout opgetreden');
-      } else {
-        res.status(201).send('Gebruiker succesvol toegevoegd');
-      }
-    });
-  });
-  
