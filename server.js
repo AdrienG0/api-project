@@ -33,8 +33,16 @@ db.connect((err) => {
   }
 });
 
-// Routes
+// Helperfuncties
+function isNumeric(value) {
+  return /^\d+$/.test(value);
+}
 
+function isValidName(name) {
+  return /^[a-zA-Z\s]+$/.test(name);
+}
+
+// Routes
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -51,7 +59,6 @@ app.get('/', (req, res) => {
     </html>
   `);
 });
-
 
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM users';
@@ -72,6 +79,10 @@ app.post('/users', (req, res) => {
     return res.status(400).send('Alle velden zijn verplicht');
   }
 
+  if (!isValidName(name)) {
+    return res.status(400).send('Naam mag geen cijfers bevatten');
+  }
+
   const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
   db.query(query, [name, email, password], (err, result) => {
     if (err) {
@@ -83,10 +94,14 @@ app.post('/users', (req, res) => {
   });
 });
 
-//gebruiker op basis van id
 
 app.get('/users/:id', (req, res) => {
   const userId = req.params.id;
+
+  if (!isNumeric(userId)) {
+    return res.status(400).send('ID moet een nummer zijn');
+  }
+
   const query = 'SELECT * FROM users WHERE id = ?';
   db.query(query, [userId], (err, results) => {
     if (err) {
@@ -104,8 +119,16 @@ app.put('/users/:id', (req, res) => {
   const userId = req.params.id;
   const { name, email, password } = req.body;
 
+  if (!isNumeric(userId)) {
+    return res.status(400).send('ID moet een nummer zijn');
+  }
+
   if (!name || !email || !password) {
     return res.status(400).send('Alle velden zijn verplicht');
+  }
+
+  if (!isValidName(name)) {
+    return res.status(400).send('Naam mag geen cijfers bevatten');
   }
 
   const query = 'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?';
@@ -121,9 +144,13 @@ app.put('/users/:id', (req, res) => {
   });
 });
 
-
 app.delete('/users/:id', (req, res) => {
   const userId = req.params.id;
+
+  if (!isNumeric(userId)) {
+    return res.status(400).send('ID moet een nummer zijn');
+  }
+
   const query = 'DELETE FROM users WHERE id = ?';
   db.query(query, [userId], (err, result) => {
     if (err) {
@@ -137,63 +164,15 @@ app.delete('/users/:id', (req, res) => {
   });
 });
 
-
-//Lijst ophalen van nieuwsberichten
-
-app.get('/newsposts', (req, res) => {
-  const { title, author, limit, offset } = req.query;
-  let query = 'SELECT * FROM newsposts';
-  const params = [];
-
-  if (title) {
-    query += ' WHERE title LIKE ?';
-    params.push(`%${title}%`);
-  }
-
-  if (author) {
-    query += title ? ' AND author LIKE ?' : ' WHERE author LIKE ?';
-    params.push(`%${author}%`);
-  }
-
-  query += ' LIMIT ? OFFSET ?';
-  params.push(parseInt(limit) || 10); // Standaard: 10 resultaten
-  params.push(parseInt(offset) || 0); // Standaard: begin vanaf 0
-
-  db.query(query, params, (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Er is een fout opgetreden');
-    } else {
-      res.json(results);
-    }
-  });
-});
-
-
-
-//Haal een nieuwsbericht op basis van id
-
-app.get('/newsposts/:id', (req, res) => {
-  const postId = req.params.id;
-  const query = 'SELECT * FROM newsposts WHERE id = ?';
-  db.query(query, [postId], (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Er is een fout opgetreden');
-    } else if (results.length === 0) {
-      res.status(404).send('Nieuwbericht niet gevonden');
-    } else {
-      res.json(results[0]);
-    }
-  });
-});
-
-//Voeg een nieuwsbericht toe
 app.post('/newsposts', (req, res) => {
   const { title, content, author } = req.body;
 
   if (!title || !content || !author) {
     return res.status(400).send('Alle velden zijn verplicht');
+  }
+
+  if (!isValidName(author)) {
+    return res.status(400).send('Auteur mag geen cijfers bevatten');
   }
 
   const query = 'INSERT INTO newsposts (title, content, author) VALUES (?, ?, ?)';
@@ -206,46 +185,6 @@ app.post('/newsposts', (req, res) => {
     }
   });
 });
-
-//Bestaand Nieuwsbericht bewerken
-app.put('/newsposts/:id', (req, res) => {
-  const postId = req.params.id;
-  const { title, content, author } = req.body;
-
-  if (!title || !content || !author) {
-    return res.status(400).send('Alle velden zijn verplicht');
-  }
-
-  const query = 'UPDATE newsposts SET title = ?, content = ?, author = ? WHERE id = ?';
-  db.query(query, [title, content, author, postId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Er is een fout opgetreden');
-    } else if (result.affectedRows === 0) {
-      res.status(404).send('Nieuwbericht niet gevonden');
-    } else {
-      res.send('Nieuwbericht succesvol bijgewerkt');
-    }
-  });
-});
-
-//verwijder een bestaand nieuwsbericht
-app.delete('/newsposts/:id', (req, res) => {
-  const postId = req.params.id;
-  const query = 'DELETE FROM newsposts WHERE id = ?';
-  db.query(query, [postId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Er is een fout opgetreden');
-    } else if (result.affectedRows === 0) {
-      res.status(404).send('Nieuwbericht niet gevonden');
-    } else {
-      res.send('Nieuwbericht succesvol verwijderd');
-    }
-  });
-});
-
-
 
 // Start server
 app.listen(PORT, () => {
