@@ -146,6 +146,36 @@ app.get('/newsposts', (req, res) => {
   });
 });
 
+app.get('/newsposts', (req, res) => {
+  const { title, author, limit, offset } = req.query;
+  let query = 'SELECT * FROM newsposts';
+  const params = [];
+
+  if (title) {
+    query += ' WHERE title LIKE ?';
+    params.push(`%${title}%`);
+  }
+
+  if (author) {
+    query += title ? ' AND author LIKE ?' : ' WHERE author LIKE ?';
+    params.push(`%${author}%`);
+  }
+
+  query += ' LIMIT ? OFFSET ?';
+  params.push(parseInt(limit) || 10); // Standaard: 10 resultaten
+  params.push(parseInt(offset) || 0); // Standaard: begin vanaf 0
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+
 
 
 //Haal een nieuwsbericht op basis van id
