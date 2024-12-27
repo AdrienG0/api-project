@@ -96,26 +96,6 @@ app.post('/users', (req, res) => {
   });
 });
 
-app.get('/users/:id', (req, res) => {
-  const userId = req.params.id;
-
-  if (!isNumeric(userId)) {
-    return res.status(400).send('ID moet een nummer zijn');
-  }
-
-  const query = 'SELECT * FROM users WHERE id = ?';
-  db.query(query, [userId], (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Er is een fout opgetreden');
-    } else if (results.length === 0) {
-      res.status(404).send('Gebruiker niet gevonden');
-    } else {
-      res.json(results[0]);
-    }
-  });
-});
-
 app.put('/users/:id', (req, res) => {
   const userId = req.params.id;
   const { name, email, password } = req.body;
@@ -166,6 +146,18 @@ app.delete('/users/:id', (req, res) => {
 });
 
 // CRUD-operaties voor Newsposts
+app.get('/newsposts', (req, res) => {
+  const query = 'SELECT * FROM newsposts';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 app.post('/newsposts', (req, res) => {
   const { title, content, author } = req.body;
 
@@ -180,10 +172,59 @@ app.post('/newsposts', (req, res) => {
   const query = 'INSERT INTO newsposts (title, content, author) VALUES (?, ?, ?)';
   db.query(query, [title, content, author], (err, result) => {
     if (err) {
-      console.error(err);
+      console.error('Database fout:', err);
       res.status(500).send('Er is een fout opgetreden');
     } else {
       res.status(201).send('Nieuwbericht succesvol toegevoegd');
+    }
+  });
+});
+
+app.put('/newsposts/:id', (req, res) => {
+  const postId = req.params.id;
+  const { title, content, author } = req.body;
+
+  if (!isNumeric(postId)) {
+    return res.status(400).send('ID moet een nummer zijn');
+  }
+
+  if (!title || !content || !author) {
+    return res.status(400).send('Alle velden zijn verplicht');
+  }
+
+  if (!isValidName(author)) {
+    return res.status(400).send('Auteur mag geen cijfers bevatten');
+  }
+
+  const query = 'UPDATE newsposts SET title = ?, content = ?, author = ? WHERE id = ?';
+  db.query(query, [title, content, author, postId], (err, result) => {
+    if (err) {
+      console.error('Database fout:', err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else if (result.affectedRows === 0) {
+      res.status(404).send('Nieuwbericht niet gevonden');
+    } else {
+      res.send('Nieuwbericht succesvol bijgewerkt');
+    }
+  });
+});
+
+app.delete('/newsposts/:id', (req, res) => {
+  const postId = req.params.id;
+
+  if (!isNumeric(postId)) {
+    return res.status(400).send('ID moet een nummer zijn');
+  }
+
+  const query = 'DELETE FROM newsposts WHERE id = ?';
+  db.query(query, [postId], (err, result) => {
+    if (err) {
+      console.error('Database fout:', err);
+      res.status(500).send('Er is een fout opgetreden');
+    } else if (result.affectedRows === 0) {
+      res.status(404).send('Nieuwbericht niet gevonden');
+    } else {
+      res.send('Nieuwbericht succesvol verwijderd');
     }
   });
 });
