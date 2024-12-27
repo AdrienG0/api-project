@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Tester</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input, textarea {
+      display: block;
+      margin-bottom: 10px;
+      padding: 5px;
+      width: 100%;
+      max-width: 500px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ddd;
+      max-width: 700px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>API Tester</h1>
+
+  
+  <h2>Haal alle nieuwberichten op</h2>
+  <button onclick="getAll()">GET /newsposts</button>
+  <pre id="getAllResponse"></pre>
+
+ 
+  <h2>Voeg een nieuwbericht toe</h2>
+  <form id="postForm">
+    <input type="text" id="title" placeholder="Titel" required>
+    <textarea id="content" placeholder="Inhoud" required></textarea>
+    <input type="text" id="author" placeholder="Auteur" required>
+    <button type="submit">POST /newsposts</button>
+  </form>
+  <pre id="postResponse"></pre>
+
+  
+  <h2>Verwijder een nieuwbericht</h2>
+  <form id="deleteForm">
+    <input type="number" id="deleteId" placeholder="ID van het bericht" required>
+    <button type="submit">DELETE /newsposts/:id</button>
+  </form>
+  <pre id="deleteResponse"></pre>
+
+  <script>
+    const API_URL = 'http://localhost:3000';
+
+   
+    async function getAll() {
+      try {
+        const response = await fetch(`${API_URL}/newsposts`);
+        const data = await response.json();
+        document.getElementById('getAllResponse').textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById('getAllResponse').textContent = 'Error: ' + err;
+      }
+    }
+
+    
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      const author = document.getElementById('author').value;
+
+      try {
+        const response = await fetch(`${API_URL}/newsposts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content, author }),
+        });
+        const data = await response.text();
+        document.getElementById('postResponse').textContent = data;
+        getAll(); 
+      } catch (err) {
+        document.getElementById('postResponse').textContent = 'Error: ' + err;
+      }
+    });
+
+    
+    document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('deleteId').value;
+
+      try {
+        const response = await fetch(`${API_URL}/newsposts/${id}`, {
+          method: 'DELETE',
+        });
+        const data = await response.text();
+        document.getElementById('deleteResponse').textContent = data;
+        getAll(); 
+      } catch (err) {
+        document.getElementById('deleteResponse').textContent = 'Error: ' + err;
+      }
+    });
+  </script>
+</body>
+</html>
