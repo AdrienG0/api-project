@@ -55,11 +55,13 @@ app.get('/', (req, res) => {
     <body>
       <h1>Welkom bij je API!</h1>
       <p><a href="/tester.html">Ga naar de API Tester</a></p>
+      <p><a href="/docs.html">Bekijk de API Documentatie</a></p>
     </body>
     </html>
   `);
 });
 
+// CRUD-operaties voor Users
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM users';
   db.query(query, (err, results) => {
@@ -93,7 +95,6 @@ app.post('/users', (req, res) => {
     }
   });
 });
-
 
 app.get('/users/:id', (req, res) => {
   const userId = req.params.id;
@@ -164,6 +165,7 @@ app.delete('/users/:id', (req, res) => {
   });
 });
 
+// CRUD-operaties voor Newsposts
 app.post('/newsposts', (req, res) => {
   const { title, content, author } = req.body;
 
@@ -178,7 +180,7 @@ app.post('/newsposts', (req, res) => {
   const query = 'INSERT INTO newsposts (title, content, author) VALUES (?, ?, ?)';
   db.query(query, [title, content, author], (err, result) => {
     if (err) {
-      console.error(err);
+      console.error('Database fout:', err);
       res.status(500).send('Er is een fout opgetreden');
     } else {
       res.status(201).send('Nieuwbericht succesvol toegevoegd');

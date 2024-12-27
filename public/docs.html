@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentatie</title>
+</head>
+<body>
+  <h1>API Documentatie</h1>
+  <p>Hieronder staat een overzicht van de beschikbare API-endpoints:</p>
+
+  <h2>Users</h2>
+  <ul>
+    <li><strong>GET /users</strong>: Haal alle gebruikers op.</li>
+    <li><strong>GET /users/:id</strong>: Haal een specifieke gebruiker op op basis van ID.</li>
+    <li><strong>POST /users</strong>: Voeg een nieuwe gebruiker toe. Vereist: <code>name</code>, <code>email</code>, <code>password</code>.</li>
+    <li><strong>PUT /users/:id</strong>: Update een bestaande gebruiker. Vereist: <code>name</code>, <code>email</code>, <code>password</code>.</li>
+    <li><strong>DELETE /users/:id</strong>: Verwijder een gebruiker op basis van ID.</li>
+  </ul>
+
+  <h2>Newsposts</h2>
+  <ul>
+    <li><strong>GET /newsposts</strong>: Haal alle nieuwsberichten op. Optioneel: queryparameters <code>title</code>, <code>author</code>, <code>limit</code>, <code>offset</code>.</li>
+    <li><strong>GET /newsposts/:id</strong>: Haal een specifiek nieuwsbericht op op basis van ID.</li>
+    <li><strong>POST /newsposts</strong>: Voeg een nieuw nieuwsbericht toe. Vereist: <code>title</code>, <code>content</code>, <code>author</code>.</li>
+    <li><strong>PUT /newsposts/:id</strong>: Update een bestaand nieuwsbericht. Vereist: <code>title</code>, <code>content</code>, <code>author</code>.</li>
+    <li><strong>DELETE /newsposts/:id</strong>: Verwijder een nieuwsbericht op basis van ID.</li>
+  </ul>
+</body>
+</html>
