@@ -34,9 +34,24 @@ db.connect((err) => {
 });
 
 // Routes
+
 app.get('/', (req, res) => {
-  res.send('Welkom bij je API!');
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welkom</title>
+    </head>
+    <body>
+      <h1>Welkom bij je API!</h1>
+      <p><a href="/tester.html">Ga naar de API Tester</a></p>
+    </body>
+    </html>
+  `);
 });
+
 
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM users';

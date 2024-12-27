@@ -41,49 +41,157 @@
 <body>
   <h1>API Tester</h1>
 
-  
-  <h2>Haal alle nieuwberichten op</h2>
-  <button onclick="getAll()">GET /newsposts</button>
-  <pre id="getAllResponse"></pre>
+  <!-- Gebruikersbeheer -->
+  <h2>Gebruikersbeheer</h2>
+  <h3>Haal alle gebruikers op</h3>
+  <button onclick="getAllUsers()">GET /users</button>
+  <pre id="getAllUsersResponse"></pre>
 
- 
-  <h2>Voeg een nieuwbericht toe</h2>
-  <form id="postForm">
-    <input type="text" id="title" placeholder="Titel" required>
-    <textarea id="content" placeholder="Inhoud" required></textarea>
-    <input type="text" id="author" placeholder="Auteur" required>
+  <h3>Voeg een gebruiker toe</h3>
+  <form id="addUserForm">
+    <input type="text" id="name" placeholder="Naam" required>
+    <input type="email" id="email" placeholder="E-mail" required>
+    <input type="password" id="password" placeholder="Wachtwoord" required>
+    <button type="submit">POST /users</button>
+  </form>
+  <pre id="addUserResponse"></pre>
+
+  <h3>Bewerk een gebruiker</h3>
+  <form id="editUserForm">
+    <input type="number" id="editUserId" placeholder="Gebruiker ID" required>
+    <input type="text" id="editName" placeholder="Naam" required>
+    <input type="email" id="editEmail" placeholder="E-mail" required>
+    <input type="password" id="editPassword" placeholder="Wachtwoord" required>
+    <button type="submit">PUT /users/:id</button>
+  </form>
+  <pre id="editUserResponse"></pre>
+
+  <h3>Verwijder een gebruiker</h3>
+  <form id="deleteUserForm">
+    <input type="number" id="deleteUserId" placeholder="Gebruiker ID" required>
+    <button type="submit">DELETE /users/:id</button>
+  </form>
+  <pre id="deleteUserResponse"></pre>
+
+  <!-- Nieuwsberichten -->
+  <h2>Nieuwsberichten</h2>
+  <h3>Haal alle nieuwsberichten op</h3>
+  <button onclick="getAllNews()">GET /newsposts</button>
+  <pre id="getAllNewsResponse"></pre>
+
+  <h3>Voeg een nieuwsbericht toe</h3>
+  <form id="addNewsForm">
+    <input type="text" id="newsTitle" placeholder="Titel" required>
+    <textarea id="newsContent" placeholder="Inhoud" required></textarea>
+    <input type="text" id="newsAuthor" placeholder="Auteur" required>
     <button type="submit">POST /newsposts</button>
   </form>
-  <pre id="postResponse"></pre>
+  <pre id="addNewsResponse"></pre>
 
-  
-  <h2>Verwijder een nieuwbericht</h2>
-  <form id="deleteForm">
-    <input type="number" id="deleteId" placeholder="ID van het bericht" required>
+  <h3>Bewerk een nieuwsbericht</h3>
+  <form id="editNewsForm">
+    <input type="number" id="editNewsId" placeholder="Nieuwsbericht ID" required>
+    <input type="text" id="editNewsTitle" placeholder="Titel" required>
+    <textarea id="editNewsContent" placeholder="Inhoud" required></textarea>
+    <input type="text" id="editNewsAuthor" placeholder="Auteur" required>
+    <button type="submit">PUT /newsposts/:id</button>
+  </form>
+  <pre id="editNewsResponse"></pre>
+
+  <h3>Verwijder een nieuwsbericht</h3>
+  <form id="deleteNewsForm">
+    <input type="number" id="deleteNewsId" placeholder="Nieuwsbericht ID" required>
     <button type="submit">DELETE /newsposts/:id</button>
   </form>
-  <pre id="deleteResponse"></pre>
+  <pre id="deleteNewsResponse"></pre>
 
   <script>
     const API_URL = 'http://localhost:3000';
 
-   
-    async function getAll() {
+    // Gebruikersbeheer
+    async function getAllUsers() {
       try {
-        const response = await fetch(`${API_URL}/newsposts`);
+        const response = await fetch(`${API_URL}/users`);
         const data = await response.json();
-        document.getElementById('getAllResponse').textContent = JSON.stringify(data, null, 2);
+        document.getElementById('getAllUsersResponse').textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        document.getElementById('getAllResponse').textContent = 'Error: ' + err;
+        document.getElementById('getAllUsersResponse').textContent = 'Error: ' + err;
       }
     }
 
-    
-    document.getElementById('postForm').addEventListener('submit', async (e) => {
+    document.getElementById('addUserForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const title = document.getElementById('title').value;
-      const content = document.getElementById('content').value;
-      const author = document.getElementById('author').value;
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch(`${API_URL}/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await response.text();
+        document.getElementById('addUserResponse').textContent = data;
+        getAllUsers();
+      } catch (err) {
+        document.getElementById('addUserResponse').textContent = 'Error: ' + err;
+      }
+    });
+
+    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editUserId').value;
+      const name = document.getElementById('editName').value;
+      const email = document.getElementById('editEmail').value;
+      const password = document.getElementById('editPassword').value;
+
+      try {
+        const response = await fetch(`${API_URL}/users/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await response.text();
+        document.getElementById('editUserResponse').textContent = data;
+        getAllUsers();
+      } catch (err) {
+        document.getElementById('editUserResponse').textContent = 'Error: ' + err;
+      }
+    });
+
+    document.getElementById('deleteUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('deleteUserId').value;
+
+      try {
+        const response = await fetch(`${API_URL}/users/${id}`, {
+          method: 'DELETE',
+        });
+        const data = await response.text();
+        document.getElementById('deleteUserResponse').textContent = data;
+        getAllUsers();
+      } catch (err) {
+        document.getElementById('deleteUserResponse').textContent = 'Error: ' + err;
+      }
+    });
+
+    // Nieuwsberichten
+    async function getAllNews() {
+      try {
+        const response = await fetch(`${API_URL}/newsposts`);
+        const data = await response.json();
+        document.getElementById('getAllNewsResponse').textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById('getAllNewsResponse').textContent = 'Error: ' + err;
+      }
+    }
+
+    document.getElementById('addNewsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('newsTitle').value;
+      const content = document.getElementById('newsContent').value;
+      const author = document.getElementById('newsAuthor').value;
 
       try {
         const response = await fetch(`${API_URL}/newsposts`, {
@@ -92,27 +200,47 @@
           body: JSON.stringify({ title, content, author }),
         });
         const data = await response.text();
-        document.getElementById('postResponse').textContent = data;
-        getAll(); 
+        document.getElementById('addNewsResponse').textContent = data;
+        getAllNews();
       } catch (err) {
-        document.getElementById('postResponse').textContent = 'Error: ' + err;
+        document.getElementById('addNewsResponse').textContent = 'Error: ' + err;
       }
     });
 
-    
-    document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+    document.getElementById('editNewsForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const id = document.getElementById('deleteId').value;
+      const id = document.getElementById('editNewsId').value;
+      const title = document.getElementById('editNewsTitle').value;
+      const content = document.getElementById('editNewsContent').value;
+      const author = document.getElementById('editNewsAuthor').value;
+
+      try {
+        const response = await fetch(`${API_URL}/newsposts/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content, author }),
+        });
+        const data = await response.text();
+        document.getElementById('editNewsResponse').textContent = data;
+        getAllNews();
+      } catch (err) {
+        document.getElementById('editNewsResponse').textContent = 'Error: ' + err;
+      }
+    });
+
+    document.getElementById('deleteNewsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('deleteNewsId').value;
 
       try {
         const response = await fetch(`${API_URL}/newsposts/${id}`, {
           method: 'DELETE',
         });
         const data = await response.text();
-        document.getElementById('deleteResponse').textContent = data;
-        getAll(); 
+        document.getElementById('deleteNewsResponse').textContent = data;
+        getAllNews();
       } catch (err) {
-        document.getElementById('deleteResponse').textContent = 'Error: ' + err;
+        document.getElementById('deleteNewsResponse').textContent = 'Error: ' + err;
       }
     });
   </script>
