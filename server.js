@@ -180,7 +180,7 @@ app.post('/newsposts', (req, res) => {
   const query = 'INSERT INTO newsposts (title, content, author) VALUES (?, ?, ?)';
   db.query(query, [title, content, author], (err, result) => {
     if (err) {
-      console.error('Database fout:', err);
+      console.error(err);
       res.status(500).send('Er is een fout opgetreden');
     } else {
       res.status(201).send('Nieuwbericht succesvol toegevoegd');
